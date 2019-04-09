@@ -422,11 +422,9 @@ int VM_Exit::wait_for_threads_in_native_to_block() {
           if (ct->compiler() == NULL || !ct->compiler()->is_jvmci() || !UseJVMCINativeLibrary) {
             num_active_compiler_thread++;
           } else {
-            // When using a compiler in a JVMCI shared library, it's possible
-            // for one compiler thread to grab a lock in the shared library,
-            // enter HotSpot and go to sleep on the shutdown safepoint. Another
-            // JVMCI shared library compiler thread can then attempt to grab the
-            // lock and thus never make progress.
+            // A JVMCI shared library compiler thread never accesses VM data structures
+            // while in _thread_in_native state so there's no need to wait for it.
+            num_active--;
           }
 #else
           num_active_compiler_thread++;
